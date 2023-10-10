@@ -1,0 +1,116 @@
+---
+title: "Lab 1 RMarkdown Version"
+author: "Neil Sebastian"
+date: "2023-09-14"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+------------------------------------------------------------------------
+
+# **Question One**
+
+The slugging percentage measures the power of a hitter. Create a graph of the univariate distribution of slugging percentage and describe it with the appropriate statistics.
+
+Answering this question we must first load the data set before begining to create a graph.
+
+```{r}
+MLBBatting <- read.csv('Lab1_MLB_Batting_2021.csv')
+```
+
+Then we can begin to graph the univariate distribution by using ggplot.
+
+```{r}
+library(ggplot2)
+MLBBat_ggplot <- ggplot(MLBBatting)
+MLBBat_ggplot + geom_histogram(aes(x=SluggingPer), alpha=10) + theme_classic()
+```
+
+To interpret this graph we can use a **5 number summary** to see the median value as well as additional values. From this we see that the median value of **SluggingPercent** is about .4020. We can also see the minimum and maximum of .1720 and .6470 respectively. Finally we can see the 1st and 3rd quartile at .3550 and 0.4535.
+
+------------------------------------------------------------------------
+
+# **Question 2**
+
+How many players in each position are there in this dataset (remember, it only includes players that batted at least 100 times in the 2021 season)? Who is the only pitcher, and what team did he play for?
+
+To answer this we can create a simple table
+
+```{r}
+table(MLBBatting$Position)
+```
+
+Then to find the sole pitcher we can use an index that will tell us the pitcher is Shohei Ohtani
+
+```{r}
+MLBBatting[MLBBatting$Position == 'Pitcher',]
+```
+
+------------------------------------------------------------------------
+
+# **Question 3**
+
+Is slugging percentage related to the number of times a player struck-out? Create the appropriate graph and describe the relationship with the appropriate statistic.
+
+First we will create the graph using ggplot once again
+
+```{r}
+MLBBat2_ggplot <-ggplot(MLBBatting)
+MLBBat2_ggplot + geom_point(aes(x=SluggingPer, y=StrikeOuts),fill = 'turquoise', pch=24) + labs(title='Slugging Percentage and Strike Outs', x='Slugging Percentage', y='Strike Outs')
+```
+
+Next, using the cor() function we can find the correlation coefficient between Slugging Percentage and Strikeouts. It returns a value of .4629 which shows that there is a weak positive correlation between the variables.
+
+```{r echo=FALSE}
+cor(MLBBatting$StrikeOuts, MLBBatting$SluggingPer)
+```
+
+------------------------------------------------------------------------
+
+# **Question 4**
+
+Does it really make sense that hitters who strike out more often have a higher slugging percentage? To further investigate this relationship, create a new variable that groups each player based on whether he is a "power hitter" or not. A "power hitter" is someone who hit at least 20 home runs. How many power hitters are in this dataset?
+
+For question 4 we will create a new variable called "Powerhitter". Then we can **display this in a table** to see how many power hitters there are.
+
+```{r}
+MLBBatting$Powerhitter <- MLBBatting$HomeRuns >= 20
+table(MLBBatting$Powerhitter)
+```
+
+This table tells us there there are **102 powerhitters** because 102 are listed as TRUE meaning they fit the powerhitter criteria
+
+------------------------------------------------------------------------
+
+# **Question 5**
+
+Create a graph that displays the relationship between strike-outs and slugging percentage split by the two "power hitter" groups. Describe the relationship between strike-outs and slugging for each group separately, using the appropriate statistics. Write a 1-2 sentence explanation for why the results for each group differ from what you calculated overall in #3
+
+For the 5th question create a final ggplot
+
+```{r}
+MLBBat3_ggplot <- ggplot(MLBBatting)
+```
+
+Plot the same dot plot but now seperate powerhitters and non powerhitters
+
+```{r}
+MLBBat3_ggplot + geom_point(aes(x=SluggingPer, y=StrikeOuts, col=Powerhitter), pch=24) + labs(title='Slugging Percentage and Strike Outs', x='Slugging Percentage', y='Strike Outs')
+```
+
+Next compare the correlations between power hitters and non powerhitters in slugging percentage and strike outs. To do this create 2 subsets for ppowerhitters and nonpowerhitters
+
+```{r}
+Powerhitters <- MLBBatting[MLBBatting$Powerhitter == TRUE, ]
+Nonpowerhitters <- MLBBatting[MLBBatting$Powerhitter == FALSE, ]
+```
+
+Then do the correlation for each to compare between q3
+
+```{r}
+cor(Powerhitters$SluggingPer, Powerhitters$StrikeOuts)
+cor(Nonpowerhitters$SluggingPer, Nonpowerhitters$StrikeOuts)
+```
